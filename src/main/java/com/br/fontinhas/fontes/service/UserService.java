@@ -27,9 +27,11 @@ public class UserService {
     }
 
     public List<User> getAllUsers() throws LocalizedException{
-        final Optional<List<User>> users = Optional.of(repository.findAll());
+        final List<User> users = repository.findAll();
 
-        if(users.isPresent()){return users.get();}
+        if(!users.isEmpty()){
+            return users;
+        }
 
         throw new LocalizedException("não existe nenhum usuário cadastrado", HttpStatus.NO_CONTENT);
     }
