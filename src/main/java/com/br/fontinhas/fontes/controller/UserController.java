@@ -1,10 +1,10 @@
 package com.br.fontinhas.fontes.controller;
 
-import com.br.fontinhas.fontes.dto.UserDTO;
-import com.br.fontinhas.fontes.entity.User;
-import com.br.fontinhas.fontes.repository.UserRepository;
-import com.br.fontinhas.fontes.translator.UserTranslator;
+import com.br.fontinhas.fontes.exeption.LocalizedException;
+import com.br.fontinhas.fontes.gateway.UserGateway;
+import com.br.fontinhas.fontes.gateway.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,35 +13,37 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserTranslator userTranslator;
+    private UserGateway userGateway;
 
     @GetMapping("/{id}")
     public ResponseEntity geUser(@PathVariable Long id){
         try{
-            return ResponseEntity.ok().body(userRepository.findById(id));
+            return ResponseEntity.ok().body(userGateway.getUserById(id));
+        }catch (LocalizedException le){
+            return ResponseEntity.status(le.getStatus()).body(le.getMessage());
         }catch (Exception e){
-            return ResponseEntity.status(404).body(e.getLocalizedMessage());
+            return ResponseEntity.internalServerError().body(e.getLocalizedMessage());
         }
     }
     @GetMapping("/list")
     public ResponseEntity listUsers(){
         try{
-            return ResponseEntity.ok().body(userRepository.findAll());
+            return ResponseEntity.ok().body(userGateway.getAllUsers());
+        }catch (LocalizedException le){
+            return ResponseEntity.status(le.getStatus()).body(le.getMessage());
         }catch (Exception e){
-            return ResponseEntity.status(404).body(e.getLocalizedMessage());
+            return ResponseEntity.internalServerError().body(e.getLocalizedMessage());
         }
     }
 
     @PostMapping("/")
     public ResponseEntity createUser(@RequestBody UserDTO userDTO) {
         try{
-            User user = userRepository.save(userTranslator.toEntity(userDTO));
-            return ResponseEntity.ok(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(userGateway.createUser(userDTO));
+        }catch (LocalizedException le){
+            return ResponseEntity.status(le.getStatus()).body(le.getMessage());
         }catch (Exception e){
-            return ResponseEntity.status(404).body(e.getLocalizedMessage());
+            return ResponseEntity.internalServerError().body(e.getLocalizedMessage());
         }
     }
 

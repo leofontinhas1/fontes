@@ -1,37 +1,25 @@
 package com.br.fontinhas.fontes.controller;
 
 import com.br.fontinhas.fontes.Constants;
-import com.br.fontinhas.fontes.entity.User;
-import com.br.fontinhas.fontes.repository.UserRepository;
-import com.br.fontinhas.fontes.translator.UserTranslator;
+import com.br.fontinhas.fontes.exeption.LocalizedException;
+import com.br.fontinhas.fontes.gateway.UserGateway;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
+import org.springframework.test.web.servlet.MvcResult;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
@@ -45,19 +33,74 @@ class UserControllerMVCTest {
     private ObjectMapper mapper;
 
     @MockBean
-    private UserTranslator translator;
-
-    @MockBean
-    private UserRepository userRepository;
+    private UserGateway userGateway;
 
     @Test
-    void should_get_user_with_id_1() throws Exception{
+    void should_get_a_user() throws Exception, LocalizedException {
 
-        when(userRepository.getById(anyLong())).thenReturn(Constants.user);
-        when(translator.toDto(Constants.user)).thenReturn(Constants.userDTO);
+        when(userGateway.getUserById(anyLong())).thenReturn(Constants.userDTO);
 
-        mockMvc.perform(get("/api/user/1").contentType("application/json"))
-                .andExpect(status().isOk());
+        MvcResult result = mockMvc.perform(get("/api/user/1").contentType("application/json").accept("application/json"))
+                .andExpect(status().isOk()).andReturn();
+        String expectedResponseBody = mapper.writeValueAsString(Constants.userDTO);
+        String actualResponseBody = result.getResponse().getContentAsString();
+
+        assertEquals(expectedResponseBody,actualResponseBody);
     }
+
+    @Test
+    void should_get_a_list_of_users() throws Exception, LocalizedException {
+
+        when(userGateway.getAllUsers()).thenReturn(List.of(Constants.userDTO));
+
+        MvcResult result = mockMvc.perform(get("/api/user/list").contentType("application/json").accept("application/json"))
+                .andExpect(status().isOk()).andReturn();
+        String expectedResponseBody = mapper.writeValueAsString(List.of(Constants.userDTO));
+        String actualResponseBody = result.getResponse().getContentAsString();
+
+        assertEquals(expectedResponseBody,actualResponseBody);
+    }
+
+    @Test
+    void should_create_a_users() throws Exception, LocalizedException {
+
+        when(userGateway.createUser(any())).thenReturn(Constants.userDTO);
+
+        MvcResult result = mockMvc
+                .perform(
+                    post("/api/user/")
+                            .contentType("application/json")
+                            .accept("application/json")
+                            .content(mapper.writeValueAsString(Constants.userDTO)
+                            )
+                ).andExpect(status().isCreated()).andReturn();
+
+        String expectedResponseBody = mapper.writeValueAsString(Constants.userDTO);
+        String actualResponseBody = result.getResponse().getContentAsString();
+
+        assertEquals(expectedResponseBody,actualResponseBody);
+    }
+
+    @Test
+    void should_get_status_204_on_getByID() throws Exception, LocalizedException {
+
+        when(userGateway.getUserById(anyLong())).thenThrow(new LocalizedException("id não encontrado", HttpStatus.NO_CONTENT));
+
+        mockMvc.perform(get("/api/user/1").contentType("application/json").accept("application/json"))
+                .andExpect(status().isNoContent()).andReturn();
+    }
+
+    @Test
+    void should_get_status_204_on_getAllUsers() throws Exception, LocalizedException {
+
+        when(userGateway.getAllUsers()).thenThrow(new LocalizedException("id não encontrado", HttpStatus.NO_CONTENT));
+
+        mockMvc.perform(get("/api/user/list").contentType("application/json").accept("application/json"))
+                .andExpect(status().isNoContent()).andReturn();
+
+    }
+
+
+
 
 }

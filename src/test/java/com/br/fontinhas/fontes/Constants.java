@@ -1,6 +1,6 @@
 package com.br.fontinhas.fontes;
 
-import com.br.fontinhas.fontes.dto.UserDTO;
+import com.br.fontinhas.fontes.gateway.dto.UserDTO;
 import com.br.fontinhas.fontes.entity.User;
 
 public final class Constants {
