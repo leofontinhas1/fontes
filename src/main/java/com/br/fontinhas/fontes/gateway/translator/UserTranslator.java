@@ -1,7 +1,7 @@
-package com.br.fontinhas.fontes.translator;
+package com.br.fontinhas.fontes.gateway.translator;
 
-import com.br.fontinhas.fontes.dto.UserDTO;
 import com.br.fontinhas.fontes.entity.User;
+import com.br.fontinhas.fontes.gateway.dto.UserDTO;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,6 +18,7 @@ public class UserTranslator implements Translator<User, UserDTO> {
 
     @Override
     public UserDTO toDto(User user) {
+
         return new UserDTO(user.getName(),user.getUsername(),user.getPassword());
     }
 }

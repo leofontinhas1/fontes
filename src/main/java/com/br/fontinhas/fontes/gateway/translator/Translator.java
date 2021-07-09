@@ -1,4 +1,4 @@
-package com.br.fontinhas.fontes.translator;
+package com.br.fontinhas.fontes.gateway.translator;
 
 import java.util.List;
 import java.util.stream.Collectors;

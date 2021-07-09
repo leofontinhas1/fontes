@@ -1,4 +1,4 @@
-package com.br.fontinhas.fontes.dto;
+package com.br.fontinhas.fontes.gateway.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
