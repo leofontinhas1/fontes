@@ -1,0 +1,13 @@
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+  datasource:
+    username: fontes_user
+    password: F0ntes2021
+    url: jdbc:postgresql://localhost:5432/fontes_db
