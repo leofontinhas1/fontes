@@ -2,7 +2,7 @@ package com.br.fontinhas.fontes.exeption;
 
 import org.springframework.http.HttpStatus;
 
-public class LocalizedException extends Throwable {
+public class LocalizedException extends RuntimeException{
 
     private String message;
 

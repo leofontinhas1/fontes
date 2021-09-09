@@ -20,7 +20,7 @@ public class UserController {
         try{
             return ResponseEntity.ok().body(userGateway.getUserById(id));
         }catch (LocalizedException le){
-            return ResponseEntity.status(le.getStatus()).body(le.getMessage());
+            throw le;
         }catch (Exception e){
             return ResponseEntity.internalServerError().body(e.getLocalizedMessage());
         }
@@ -30,7 +30,7 @@ public class UserController {
         try{
             return ResponseEntity.ok().body(userGateway.getAllUsers());
         }catch (LocalizedException le){
-            return ResponseEntity.status(le.getStatus()).body(le.getMessage());
+            throw le;
         }catch (Exception e){
             return ResponseEntity.internalServerError().body(e.getLocalizedMessage());
         }
@@ -41,7 +41,7 @@ public class UserController {
         try{
             return ResponseEntity.status(HttpStatus.CREATED).body(userGateway.createUser(userDTO));
         }catch (LocalizedException le){
-            return ResponseEntity.status(le.getStatus()).body(le.getMessage());
+            throw le;
         }catch (Exception e){
             return ResponseEntity.internalServerError().body(e.getLocalizedMessage());
         }
